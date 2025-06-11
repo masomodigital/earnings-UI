@@ -73,13 +73,14 @@
           <th>Earnings (KSH)</th>
         </tr>
       </thead>
-      <tbody id="user-data"></tbody>
+      <tbody id="user-data">
+      </tbody>
     </table>
     <button onclick="logout()">Logout</button>
   </div>
 
   <script>
-    const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbwnVJyKoqn-knXyO5ne2qnU9Xya0l5OJqtdfxUR9R7Dx3Sn-oGI8LL6fRRRVrhQLS0-ZA/exec";
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwnVJyKoqn-knXyO5ne2qnU9Xya0l5OJqtdfxUR9R7Dx3Sn-oGI8LL6fRRRVrhQLS0-ZA/exec';
 
     function login() {
       const nationalId = document.getElementById('nationalId').value.trim();
@@ -92,44 +93,47 @@
         return;
       }
 
-      const callbackName = 'showLoginResult';
-      const script = document.createElement('script');
-      script.src = `${GAS_ENDPOINT}?callback=${callbackName}&nationalId=${encodeURIComponent(nationalId)}&password=${encodeURIComponent(password)}`;
-      document.body.appendChild(script);
-    }
+      fetch(scriptURL + `?nationalId=${encodeURIComponent(nationalId)}&password=${encodeURIComponent(password)}`)
+        .then(res => res.json())
+        .then(response => {
+          if (response.success) {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('welcome-msg').style.display = 'block';
+            document.getElementById('username').textContent = response.name;
+            document.getElementById('dashboard').style.display = 'block';
 
-    function showLoginResult(response) {
-      const errorDiv = document.getElementById('error');
-      if (response.success) {
-        document.getElementById('login-form').style.display = 'none';
-        document.getElementById('welcome-msg').style.display = 'block';
-        document.getElementById('username').textContent = response.name;
-        document.getElementById('dashboard').style.display = 'block';
+            const tbody = document.getElementById('user-data');
+            tbody.innerHTML = ''; // Clear previous
 
-        const tbody = document.getElementById('user-data');
-        tbody.innerHTML = '';
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${response.name}</td>
+              <td>${response.credits}</td>
+              <td>${response.phone}</td>
+              <td>
+                <span class="promo-code" title="Click to copy promo code" onclick="copyToClipboard('${response.promo}')">${response.promo}</span>
+                <button class="copy-button" onclick="copyToClipboard('${response.promo}')">Copy</button>
+              </td>
+              <td style="color: red;">${Number(response.earnings).toFixed(2)}</td>
+            `;
+            tbody.appendChild(tr);
 
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${response.name}</td>
-          <td>${response.credits}</td>
-          <td>${response.phone}</td>
-          <td>
-            <span class="promo-code" onclick="copyToClipboard('${response.promo}')">${response.promo}</span>
-            <button class="copy-button" onclick="copyToClipboard('${response.promo}')">Copy</button>
-          </td>
-          <td style="color:red;">${Number(response.earnings).toFixed(2)}</td>
-        `;
-        tbody.appendChild(tr);
-      } else {
-        errorDiv.textContent = response.message || 'Login failed';
-      }
+          } else {
+            errorDiv.textContent = response.message || 'Login failed.';
+          }
+        })
+        .catch(error => {
+          errorDiv.textContent = 'Error connecting to server.';
+          console.error(error);
+        });
     }
 
     function copyToClipboard(text) {
-      navigator.clipboard.writeText(text)
-        .then(() => alert('Promo code copied: ' + text))
-        .catch(() => alert('Failed to copy promo code.'));
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Promo code copied: ' + text);
+      }, () => {
+        alert('Failed to copy promo code.');
+      });
     }
 
     function logout() {
