@@ -1,15 +1,82 @@
-<!-- Save this as index.html and push to your GitHub repo for GitHub Pages -->
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
   <title>Earnings Dashboard</title>
   <style>
-    /* (keep your styles here — unchanged) */
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; }
+    input[type=text], input[type=password] {
+      width: 100%; padding: 10px; margin: 6px 0 12px 0; border: 1px solid #ccc; border-radius: 4px;
+    }
+    button {
+      background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover { background-color: #45a049; }
+    table {
+      border-collapse: collapse; width: 100%; margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd; padding: 8px; text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .promo-code {
+      font-family: monospace; background: #eee; padding: 4px 6px; border-radius: 4px;
+      cursor: pointer;
+      user-select: all;
+    }
+    .copy-button {
+      margin-left: 8px; padding: 4px 8px; font-size: 0.9em; cursor: pointer;
+      border: 1px solid #888; border-radius: 4px; background: #f9f9f9;
+    }
+    .copy-button:hover {
+      background-color: #ddd;
+    }
+    #error {
+      color: red; margin-top: 10px;
+    }
+    #welcome-msg {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body>
-  <!-- (same body HTML as before) -->
+  <div id="welcome-msg" style="display:none;">
+    Welcome, <span id="username" style="color:red;"></span>!
+  </div>
+
+  <h2 style="color: green;">EARNINGS DASHBOARD</h2>
+  <div id="login-form">
+    <label for="nationalId">National ID:</label><br>
+    <input type="text" id="nationalId" placeholder="Enter National ID" required><br>
+    <label for="password">Password:</label><br>
+    <input type="password" id="password" placeholder="Enter Password" required><br>
+    <button onclick="login()">Login</button>
+    <div id="error"></div>
+  </div>
+
+  <div id="dashboard" style="display:none;">
+    <h3>YOUR EARNINGS</h3>
+    <p style="color: green; font-weight: bold; margin-top: 5px;">
+      NB: You can withdraw your earnings if they are KSH.100 and above.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Credits</th>
+          <th>Phone Number</th>
+          <th>Promo Code</th>
+          <th>Earnings (KSH)</th>
+        </tr>
+      </thead>
+      <tbody id="user-data"></tbody>
+    </table>
+    <button onclick="logout()">Logout</button>
+  </div>
 
   <script>
     const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbwnVJyKoqn-knXyO5ne2qnU9Xya0l5OJqtdfxUR9R7Dx3Sn-oGI8LL6fRRRVrhQLS0-ZA/exec";
@@ -25,42 +92,38 @@
         return;
       }
 
-      fetch(GAS_ENDPOINT, {
-        method: 'POST',
-        body: JSON.stringify({ nationalId, password }),
-        headers: { 'Content-Type': 'application/json' }
-      })
-      .then(res => res.json())
-      .then(response => {
-        if (response.success) {
-          document.getElementById('login-form').style.display = 'none';
-          document.getElementById('welcome-msg').style.display = 'block';
-          document.getElementById('username').textContent = response.name;
-          document.getElementById('dashboard').style.display = 'block';
+      const callbackName = 'showLoginResult';
+      const script = document.createElement('script');
+      script.src = `${GAS_ENDPOINT}?callback=${callbackName}&nationalId=${encodeURIComponent(nationalId)}&password=${encodeURIComponent(password)}`;
+      document.body.appendChild(script);
+    }
 
-          const tbody = document.getElementById('user-data');
-          tbody.innerHTML = '';
+    function showLoginResult(response) {
+      const errorDiv = document.getElementById('error');
+      if (response.success) {
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('welcome-msg').style.display = 'block';
+        document.getElementById('username').textContent = response.name;
+        document.getElementById('dashboard').style.display = 'block';
 
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${response.name}</td>
-            <td>${response.credits}</td>
-            <td>${response.phone}</td>
-            <td>
-              <span class="promo-code" onclick="copyToClipboard('${response.promo}')">${response.promo}</span>
-              <button class="copy-button" onclick="copyToClipboard('${response.promo}')">Copy</button>
-            </td>
-            <td style="color:red;">${Number(response.earnings).toFixed(2)}</td>
-          `;
-          tbody.appendChild(tr);
-        } else {
-          errorDiv.textContent = response.message || 'Login failed';
-        }
-      })
-      .catch(err => {
-        console.error('Login Error:', err);
-        errorDiv.textContent = 'Failed to contact server.';
-      });
+        const tbody = document.getElementById('user-data');
+        tbody.innerHTML = '';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${response.name}</td>
+          <td>${response.credits}</td>
+          <td>${response.phone}</td>
+          <td>
+            <span class="promo-code" onclick="copyToClipboard('${response.promo}')">${response.promo}</span>
+            <button class="copy-button" onclick="copyToClipboard('${response.promo}')">Copy</button>
+          </td>
+          <td style="color:red;">${Number(response.earnings).toFixed(2)}</td>
+        `;
+        tbody.appendChild(tr);
+      } else {
+        errorDiv.textContent = response.message || 'Login failed';
+      }
     }
 
     function copyToClipboard(text) {
@@ -80,3 +143,4 @@
   </script>
 </body>
 </html>
+
