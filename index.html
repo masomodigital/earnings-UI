@@ -1,246 +1,180 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Earnings Dashboard</title>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #e0f7fa, #f1f8e9);
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    #container {
-      background: white;
-      border-radius: 15px;
-      padding: 2rem;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-      box-sizing: border-box;
-    }
-    h2 {
-      text-align: center;
-      color: #2e7d32;
-      margin-bottom: 1.5rem;
-    }
-    label {
-      font-weight: bold;
-      display: block;
-      margin-bottom: 0.3rem;
-      color: #333;
-    }
-    input[type="text"], input[type="password"] {
-      width: 100%;
-      padding: 0.6rem;
-      margin-bottom: 1.2rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; }
+    input[type=text], input[type=password] {
+      width: 100%; padding: 10px; margin: 6px 0 12px 0; border: 1px solid #ccc; border-radius: 4px;
     }
     button {
-      width: 100%;
-      background-color: #2e7d32;
-      border: none;
-      padding: 0.75rem;
-      font-size: 1rem;
-      color: white;
-      font-weight: bold;
-      border-radius: 8px;
+      background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
     }
-    button:hover {
-      background-color: #1b4d20;
+    button:hover { background-color: #45a049; }
+    table {
+      border-collapse: collapse; width: 100%; margin-top: 20px;
     }
-    .message {
-      margin-top: 1rem;
-      text-align: center;
-      font-weight: bold;
+    th, td {
+      border: 1px solid #ddd; padding: 8px; text-align: left;
     }
-    .error {
-      color: red;
+    th {
+      background-color: #f2f2f2;
     }
-    .success {
-      color: green;
-    }
-    #dashboard {
-      display: none;
-    }
-    #dashboard h3 {
-      color: red;
-      font-weight: bold;
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    .field {
-      margin-bottom: 1rem;
-    }
-    .field label {
-      color: #555;
-      font-weight: normal;
-    }
-    .promo-code-container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: #e8f5e9;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 1.1rem;
+    .promo-code {
+      font-family: monospace; background: #eee; padding: 4px 6px; border-radius: 4px;
+      cursor: pointer;
       user-select: all;
     }
-    .copy-btn {
-      cursor: pointer;
-      background-color: #388e3c;
-      border: none;
-      color: white;
-      padding: 0.3rem 0.7rem;
-      border-radius: 5px;
-      font-size: 0.9rem;
-      transition: background-color 0.3s ease;
+    .copy-button {
+      margin-left: 8px; padding: 4px 8px; font-size: 0.9em; cursor: pointer;
+      border: 1px solid #888; border-radius: 4px; background: #f9f9f9;
     }
-    .copy-btn:hover {
-      background-color: #1b5e20;
+    .copy-button:hover {
+      background-color: #ddd;
+    }
+    #error {
+      color: red; margin-top: 10px;
+    }
+    #welcome-msg {
+      font-size: 1.2em;
+      margin-bottom: 20px;
     }
   </style>
 </head>
 <body>
-  <div id="container">
-    <div id="loginForm">
-      <h2>Earnings Dashboard Login</h2>
-      <label for="nationalId">National ID</label>
-      <input type="text" id="nationalId" name="nationalId" autocomplete="off" required />
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" autocomplete="off" required />
-      <button id="loginBtn">Login</button>
-      <div class="message" id="message"></div>
-    </div>
-
-    <div id="dashboard">
-      <h2>EARNINGS DASHBOARD</h2>
-      <h3 id="welcomeMessage"></h3>
-
-      <div class="field"><strong>Name:</strong> <span id="userName"></span></div>
-      <div class="field"><strong>Credits:</strong> <span id="userCredits"></span></div>
-      <div class="field"><strong>Phone Number:</strong> <span id="userPhone"></span></div>
-
-      <div class="field">
-        <strong>Promo Code:</strong>
-        <div class="promo-code-container">
-          <span id="userPromoCode"></span>
-          <button class="copy-btn" id="copyPromoBtn">Copy</button>
-        </div>
-      </div>
-
-      <div class="field"><strong>Earnings:</strong> <span id="userEarnings"></span></div>
-
-      <button id="logoutBtn" style="background-color: #b71c1c; margin-top: 1rem;">Logout</button>
-    </div>
+  <div id="welcome-msg" style="display:none;">
+    Welcome, <span id="username" style="color:red;"></span>!
   </div>
 
-  <script>
-    const loginForm = document.getElementById('loginForm');
-    const dashboard = document.getElementById('dashboard');
-    const messageDiv = document.getElementById('message');
+  <h2 style="color: green;">EARNINGS DASHBOARD</h2>
+  <div id="login-form">
+    <label for="nationalId">National ID:</label><br>
+    <input type="text" id="nationalId" placeholder="Enter National ID" required><br>
+    <label for="password">Password:</label><br>
+    <input type="password" id="password" placeholder="Enter Password" required><br>
+    <button onclick="login()">Login</button>
+    <div id="error"></div>
+  </div>
 
-    const nationalIdInput = document.getElementById('nationalId');
-    const passwordInput = document.getElementById('password');
+  <div id="dashboard" style="display:none;">
+    <h3>YOUR EARNINGS</h3>
+    <p style="color: green; font-weight: bold; margin-top: 5px;">
+      NB: You can withdraw your earnings if they are KSH.100 and above.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Credits</th>
+          <th>Phone Number</th>
+          <th>Promo Code</th>
+          <th>Earnings (KSH)</th>
+        </tr>
+      </thead>
+      <tbody id="user-data"></tbody>
+    </table>
+    <button onclick="logout()">Logout</button>
+  </div>
 
-    const userNameSpan = document.getElementById('userName');
-    const userCreditsSpan = document.getElementById('userCredits');
-    const userPhoneSpan = document.getElementById('userPhone');
-    const userPromoCodeSpan = document.getElementById('userPromoCode');
-    const userEarningsSpan = document.getElementById('userEarnings');
-    const welcomeMessage = document.getElementById('welcomeMessage');
+<script>
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbwnVJyKoqn-knXyO5ne2qnU9Xya0l5OJqtdfxUR9R7Dx3Sn-oGI8LL6fRRRVrhQLS0-ZA/exec";
 
-    const copyPromoBtn = document.getElementById('copyPromoBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
+  async function login() {
+    const nationalId = document.getElementById('nationalId').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const errorDiv = document.getElementById('error');
+    errorDiv.textContent = '';
 
-    const scriptUrl = 'https://script.google.com/macros/s/AKfycbwnVJyKoqn-knXyO5ne2qnU9Xya0l5OJqtdfxUR9R7Dx3Sn-oGI8LL6fRRRVrhQLS0-ZA/exec'; // <-- Replace with your Apps Script Web App URL
-
-    function showMessage(msg, isError = false) {
-      messageDiv.textContent = msg;
-      messageDiv.className = 'message ' + (isError ? 'error' : 'success');
+    if (!nationalId || !password) {
+      errorDiv.textContent = 'Please enter both National ID and Password.';
+      return;
     }
 
-    async function login() {
-      showMessage('');
-      const nationalId = nationalIdInput.value.trim();
-      const password = passwordInput.value;
+    try {
+      const response = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'doLogin', nationalId, password })
+      });
 
-      if (!nationalId || !password) {
-        showMessage('Please enter National ID and Password.', true);
-        return;
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const data = await response.json();
+
+      if (data.success) {
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('welcome-msg').style.display = 'block';
+        document.getElementById('username').textContent = data.name;
+        document.getElementById('dashboard').style.display = 'block';
+
+        const tbody = document.getElementById('user-data');
+        tbody.innerHTML = '';
+
+        const tr = document.createElement('tr');
+
+        const tdName = document.createElement('td');
+        tdName.textContent = data.name;
+        tr.appendChild(tdName);
+
+        const tdCredits = document.createElement('td');
+        tdCredits.textContent = data.credits;
+        tr.appendChild(tdCredits);
+
+        const tdPhone = document.createElement('td');
+        tdPhone.textContent = data.phone;
+        tr.appendChild(tdPhone);
+
+        const tdPromo = document.createElement('td');
+        const promoSpan = document.createElement('span');
+        promoSpan.textContent = data.promo;
+        promoSpan.className = 'promo-code';
+        promoSpan.title = 'Click to copy promo code';
+        promoSpan.onclick = () => copyToClipboard(data.promo);
+        tdPromo.appendChild(promoSpan);
+
+        const copyBtn = document.createElement('button');
+        copyBtn.textContent = 'Copy';
+        copyBtn.className = 'copy-button';
+        copyBtn.onclick = () => copyToClipboard(data.promo);
+        tdPromo.appendChild(copyBtn);
+
+        tr.appendChild(tdPromo);
+
+        const tdEarnings = document.createElement('td');
+        tdEarnings.style.color = 'red';
+        tdEarnings.textContent = Number(data.earnings).toFixed(2);
+        tr.appendChild(tdEarnings);
+
+        tbody.appendChild(tr);
+
+      } else {
+        errorDiv.textContent = data.message || 'Login failed';
       }
 
-      try {
-        const response = await fetch(scriptUrl, {
-          method: 'POST',
-          body: JSON.stringify({ nationalId, password }),
-          headers: { 'Content-Type': 'application/json' }
-        });
-
-        const result = await response.json();
-
-        if (result.status === 'success') {
-          displayDashboard(result.user);
-        } else {
-          showMessage(result.message || 'Login failed.', true);
-        }
-      } catch (error) {
-        showMessage('Error: ' + error.message, true);
-      }
+    } catch (error) {
+      errorDiv.textContent = 'Error: ' + error.message;
     }
+  }
 
-    function displayDashboard(user) {
-      loginForm.style.display = 'none';
-      dashboard.style.display = 'block';
-
-      welcomeMessage.textContent = `Welcome ${user.name}`;
-      welcomeMessage.style.color = 'red';
-
-      userNameSpan.textContent = user.name;
-      userCreditsSpan.textContent = user.credits;
-      userPhoneSpan.textContent = user.phone;
-      userPromoCodeSpan.textContent = user.promoCode;
-      userEarningsSpan.textContent = user.earnings.toFixed(2);
-    }
-
-    copyPromoBtn.addEventListener('click', () => {
-      const text = userPromoCodeSpan.textContent;
-      navigator.clipboard.writeText(text).then(() => {
-        alert('Promo Code copied to clipboard!');
-      }).catch(() => {
-        alert('Failed to copy Promo Code. Please copy manually.');
-      });
+  function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Promo code copied: ' + text);
+    }, () => {
+      alert('Failed to copy promo code.');
     });
+  }
 
-    logoutBtn.addEventListener('click', () => {
-      dashboard.style.display = 'none';
-      loginForm.style.display = 'block';
-      nationalIdInput.value = '';
-      passwordInput.value = '';
-      showMessage('');
-    });
+  function logout() {
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('welcome-msg').style.display = 'none';
+    document.getElementById('login-form').style.display = 'block';
+    document.getElementById('nationalId').value = '';
+    document.getElementById('password').value = '';
+    document.getElementById('error').textContent = '';
+  }
+</script>
 
-    document.getElementById('loginBtn').addEventListener('click', login);
-
-    // Also allow Enter key on inputs to login
-    [nationalIdInput, passwordInput].forEach(input => {
-      input.addEventListener('keydown', e => {
-        if (e.key === 'Enter') {
-          login();
-        }
-      });
-    });
-  </script>
 </body>
 </html>
 
