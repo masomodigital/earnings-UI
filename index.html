@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <base target="_top">
   <title>Earnings Dashboard</title>
   <style>
     body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; }
@@ -33,7 +34,9 @@
     .copy-button:hover {
       background-color: #ddd;
     }
-    #error { color: red; margin-top: 10px; }
+    #error {
+      color: red; margin-top: 10px;
+    }
     #welcome-msg {
       font-size: 1.2em;
       margin-bottom: 20px;
@@ -58,8 +61,8 @@
   <div id="dashboard" style="display:none;">
     <h3>YOUR EARNINGS</h3>
     <p style="color: green; font-weight: bold; margin-top: 5px;">
-      NB: You can withdraw your earnings if they are KSH.100 and above.
-    </p>
+ NB: You can withdraw your earnings if they are KSH.100 and above.
+</p>
     <table>
       <thead>
         <tr>
@@ -70,87 +73,124 @@
           <th>Earnings (KSH)</th>
         </tr>
       </thead>
-      <tbody id="user-data"></tbody>
+      <tbody id="user-data">
+      </tbody>
     </table>
     <button onclick="logout()">Logout</button>
   </div>
 
-<script>
-  // Replace with your latest deployed Google Apps Script Web App URL
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbwnVJyKoqn-knXyO5ne2qnU9Xya0l5OJqtdfxUR9R7Dx3Sn-oGI8LL6fRRRVrhQLS0-ZA/exec";
+  <script>
+    // IMPORTANT: Replace this with your actual Google Apps Script Web App deployment URL
+    // This is the URL you provided: https://script.google.com/macros/s/AKfycbwnVJyKoqn-knXyO5ne2qnU9Xya0l5OJqtdfxUR9R7Dx3Sn-oGI8LL6fRRRVrhQLS0-ZA/exec
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwnVJyKoqn-knXyO5ne2qnU9Xya0l5OJqtdfxUR9R7Dx3Sn-oGI8LL6fRRRVrhQLS0-ZA/exec';
 
-  async function login() {
-    const nationalId = document.getElementById('nationalId').value.trim();
-    const password = document.getElementById('password').value.trim();
-    const errorDiv = document.getElementById('error');
-    errorDiv.textContent = '';
+    async function login() {
+      const nationalId = document.getElementById('nationalId').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const errorDiv = document.getElementById('error');
+      errorDiv.textContent = '';
 
-    if (!nationalId || !password) {
-      errorDiv.textContent = 'Please enter both National ID and Password.';
-      return;
-    }
-
-    try {
-      const response = await fetch(GAS_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'doLogin', nationalId, password })
-      });
-
-      if (!response.ok) throw new Error('Network response was not ok');
-
-      const data = await response.json();
-
-      if (data.success) {
-        document.getElementById('login-form').style.display = 'none';
-        document.getElementById('welcome-msg').style.display = 'block';
-        document.getElementById('username').textContent = data.name;
-        document.getElementById('dashboard').style.display = 'block';
-
-        const tbody = document.getElementById('user-data');
-        tbody.innerHTML = '';
-
-        const tr = document.createElement('tr');
-
-        tr.innerHTML = `
-          <td>${data.name}</td>
-          <td>${data.credits}</td>
-          <td>${data.phone}</td>
-          <td>
-            <span class="promo-code" onclick="copyToClipboard('${data.promo}')">${data.promo}</span>
-            <button class="copy-button" onclick="copyToClipboard('${data.promo}')">Copy</button>
-          </td>
-          <td style="color:red;">${Number(data.earnings).toFixed(2)}</td>
-        `;
-
-        tbody.appendChild(tr);
-
-      } else {
-        errorDiv.textContent = data.message || 'Login failed';
+      if (!nationalId || !password) {
+        errorDiv.textContent = 'Please enter both National ID and Password.';
+        return;
       }
 
-    } catch (error) {
-      errorDiv.textContent = 'Error: ' + error.message;
+      try {
+        const response = await fetch(GAS_WEB_APP_URL, {
+          method: 'POST',
+          // Google Apps Script `doPost` expects data as URL-encoded form data,
+          // or you can parse JSON. For simplicity, we'll send it as JSON
+          // and adjust `doPost` in `code.gs` if needed.
+          // Your current `doLogin` function in `code.gs` expects a `data` object,
+          // which is typically passed by google.script.run. We'll simulate this
+          // by sending JSON in the request body.
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ nationalId: nationalId, password: password, functionName: 'doLogin' })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json(); // Parse the JSON response from your Apps Script
+
+        if (data.success) {
+          document.getElementById('login-form').style.display = 'none';
+          document.getElementById('welcome-msg').style.display = 'block';
+          document.getElementById('username').textContent = data.name;
+          document.getElementById('dashboard').style.display = 'block';
+
+          const tbody = document.getElementById('user-data');
+          tbody.innerHTML = ''; // Clear previous
+
+          const tr = document.createElement('tr');
+
+          const tdName = document.createElement('td');
+          tdName.textContent = data.name;
+          tr.appendChild(tdName);
+
+          const tdCredits = document.createElement('td');
+          tdCredits.textContent = data.credits;
+          tr.appendChild(tdCredits);
+
+          const tdPhone = document.createElement('td');
+          tdPhone.textContent = data.phone;
+          tr.appendChild(tdPhone);
+
+          const tdPromo = document.createElement('td');
+          const promoSpan = document.createElement('span');
+          promoSpan.textContent = data.promo;
+          promoSpan.className = 'promo-code';
+          promoSpan.title = 'Click to copy promo code';
+          promoSpan.onclick = function() {
+            copyToClipboard(data.promo);
+          };
+          tdPromo.appendChild(promoSpan);
+
+          const copyBtn = document.createElement('button');
+          copyBtn.textContent = 'Copy';
+          copyBtn.className = 'copy-button';
+          copyBtn.onclick = function() {
+            copyToClipboard(data.promo);
+          };
+          tdPromo.appendChild(copyBtn);
+
+          tr.appendChild(tdPromo);
+
+          const tdEarnings = document.createElement('td');
+          tdEarnings.style.color = 'red';
+          tdEarnings.textContent = Number(data.earnings).toFixed(2);
+          tr.appendChild(tdEarnings);
+
+          tbody.appendChild(tr);
+
+        } else {
+          errorDiv.textContent = data.message || 'Login failed';
+        }
+      } catch (error) {
+        console.error('Error during login:', error);
+        errorDiv.textContent = 'An error occurred during login. Please try again.';
+      }
     }
-  }
 
-  function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-      alert('Promo code copied: ' + text);
-    }, () => {
-      alert('Failed to copy promo code.');
-    });
-  }
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Promo code copied: ' + text);
+      }, () => {
+        alert('Failed to copy promo code.');
+      });
+    }
 
-  function logout() {
-    document.getElementById('dashboard').style.display = 'none';
-    document.getElementById('welcome-msg').style.display = 'none';
-    document.getElementById('login-form').style.display = 'block';
-    document.getElementById('nationalId').value = '';
-    document.getElementById('password').value = '';
-    document.getElementById('error').textContent = '';
-  }
-</script>
+    function logout() {
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('welcome-msg').style.display = 'none';
+      document.getElementById('login-form').style.display = 'block';
+      document.getElementById('nationalId').value = '';
+      document.getElementById('password').value = '';
+      document.getElementById('error').textContent = '';
+    }
+  </script>
 </body>
 </html>
-
