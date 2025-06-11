@@ -59,6 +59,18 @@
       margin-top: 15px;
       display: none; /* hidden initially */
     }
+    .withdraw-button {
+      background-color: black;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-bottom: 15px;
+    }
+    .withdraw-button:hover {
+      background-color: #333;
+    }
   </style>
 </head>
 <body>
@@ -96,6 +108,9 @@
       <tbody id="user-data">
       </tbody>
     </table>
+    <a href="https://masomodigital.github.io/withdraw-earning/">
+      <button class="withdraw-button">Withdraw</button>
+    </a>
     <button onclick="logout()">Logout</button>
   </div>
 
