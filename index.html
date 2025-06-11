@@ -33,9 +33,7 @@
     .copy-button:hover {
       background-color: #ddd;
     }
-    #error {
-      color: red; margin-top: 10px;
-    }
+    #error { color: red; margin-top: 10px; }
     #welcome-msg {
       font-size: 1.2em;
       margin-bottom: 20px;
@@ -78,6 +76,7 @@
   </div>
 
 <script>
+  // Replace with your latest deployed Google Apps Script Web App URL
   const GAS_URL = "https://script.google.com/macros/s/AKfycbwnVJyKoqn-knXyO5ne2qnU9Xya0l5OJqtdfxUR9R7Dx3Sn-oGI8LL6fRRRVrhQLS0-ZA/exec";
 
   async function login() {
@@ -113,38 +112,16 @@
 
         const tr = document.createElement('tr');
 
-        const tdName = document.createElement('td');
-        tdName.textContent = data.name;
-        tr.appendChild(tdName);
-
-        const tdCredits = document.createElement('td');
-        tdCredits.textContent = data.credits;
-        tr.appendChild(tdCredits);
-
-        const tdPhone = document.createElement('td');
-        tdPhone.textContent = data.phone;
-        tr.appendChild(tdPhone);
-
-        const tdPromo = document.createElement('td');
-        const promoSpan = document.createElement('span');
-        promoSpan.textContent = data.promo;
-        promoSpan.className = 'promo-code';
-        promoSpan.title = 'Click to copy promo code';
-        promoSpan.onclick = () => copyToClipboard(data.promo);
-        tdPromo.appendChild(promoSpan);
-
-        const copyBtn = document.createElement('button');
-        copyBtn.textContent = 'Copy';
-        copyBtn.className = 'copy-button';
-        copyBtn.onclick = () => copyToClipboard(data.promo);
-        tdPromo.appendChild(copyBtn);
-
-        tr.appendChild(tdPromo);
-
-        const tdEarnings = document.createElement('td');
-        tdEarnings.style.color = 'red';
-        tdEarnings.textContent = Number(data.earnings).toFixed(2);
-        tr.appendChild(tdEarnings);
+        tr.innerHTML = `
+          <td>${data.name}</td>
+          <td>${data.credits}</td>
+          <td>${data.phone}</td>
+          <td>
+            <span class="promo-code" onclick="copyToClipboard('${data.promo}')">${data.promo}</span>
+            <button class="copy-button" onclick="copyToClipboard('${data.promo}')">Copy</button>
+          </td>
+          <td style="color:red;">${Number(data.earnings).toFixed(2)}</td>
+        `;
 
         tbody.appendChild(tr);
 
@@ -174,7 +151,6 @@
     document.getElementById('error').textContent = '';
   }
 </script>
-
 </body>
 </html>
 
