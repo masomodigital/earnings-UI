@@ -4,7 +4,12 @@
   <meta charset="UTF-8">
   <title>Earnings Dashboard</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; }
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      text-align: center; /* Center all content */
+    }
     input[type=text], input[type=password] {
       width: 100%; padding: 10px; margin: 6px 0 12px 0; border: 1px solid #ccc; border-radius: 4px;
     }
@@ -14,10 +19,17 @@
     }
     button:hover { background-color: #45a049; }
     table {
-      border-collapse: collapse; width: 100%; margin-top: 20px;
+      border-collapse: collapse;
+      width: 100%;
+      margin: 20px 0;
+      border: 2px solid #000; /* visible solid border around table */
+      margin-left: auto;
+      margin-right: auto; /* center table */
     }
     th, td {
-      border: 1px solid #ddd; padding: 8px; text-align: left;
+      border: 1px solid #000; /* visible solid border for cells */
+      padding: 8px;
+      text-align: left;
     }
     th {
       background-color: #f2f2f2;
@@ -41,6 +53,12 @@
       font-size: 1.2em;
       margin-bottom: 20px;
     }
+    #loading {
+      color: green;
+      font-weight: bold;
+      margin-top: 15px;
+      display: none; /* hidden initially */
+    }
   </style>
 </head>
 <body>
@@ -49,6 +67,7 @@
   </div>
 
   <h2 style="color: green;">EARNINGS DASHBOARD</h2>
+
   <div id="login-form">
     <label for="nationalId">National ID:</label><br>
     <input type="text" id="nationalId" placeholder="Enter National ID" required><br>
@@ -56,6 +75,7 @@
     <input type="password" id="password" placeholder="Enter Password" required><br>
     <button onclick="login()">Login</button>
     <div id="error"></div>
+    <div id="loading">Wait please...</div>
   </div>
 
   <div id="dashboard" style="display:none;">
@@ -86,16 +106,21 @@
       const nationalId = document.getElementById('nationalId').value.trim();
       const password = document.getElementById('password').value.trim();
       const errorDiv = document.getElementById('error');
+      const loadingDiv = document.getElementById('loading');
       errorDiv.textContent = '';
+      loadingDiv.style.display = 'block';  // show "Wait please..."
 
       if (!nationalId || !password) {
         errorDiv.textContent = 'Please enter both National ID and Password.';
+        loadingDiv.style.display = 'none';
         return;
       }
 
       fetch(scriptURL + `?nationalId=${encodeURIComponent(nationalId)}&password=${encodeURIComponent(password)}`)
         .then(res => res.json())
         .then(response => {
+          loadingDiv.style.display = 'none';  // hide "Wait please..."
+
           if (response.success) {
             document.getElementById('login-form').style.display = 'none';
             document.getElementById('welcome-msg').style.display = 'block';
@@ -123,6 +148,7 @@
           }
         })
         .catch(error => {
+          document.getElementById('loading').style.display = 'none'; // hide "Wait please..."
           errorDiv.textContent = 'Error connecting to server.';
           console.error(error);
         });
@@ -143,8 +169,8 @@
       document.getElementById('nationalId').value = '';
       document.getElementById('password').value = '';
       document.getElementById('error').textContent = '';
+      document.getElementById('loading').style.display = 'none';
     }
   </script>
 </body>
 </html>
-
