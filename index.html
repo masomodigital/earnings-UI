@@ -4,61 +4,99 @@
   <meta charset="UTF-8">
   <title>Earnings Dashboard</title>
   <style>
-    body {
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
       font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background-color: #f9f9f9;
+    }
+
+    .container {
       max-width: 600px;
-      margin: 40px auto;
-      text-align: center; /* Center all content */
+      width: 90%;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
+
     input[type=text], input[type=password] {
-      width: 100%; padding: 10px; margin: 6px 0 12px 0; border: 1px solid #ccc; border-radius: 4px;
+      width: 100%; padding: 10px; margin: 6px 0 12px 0;
+      border: 1px solid #ccc; border-radius: 4px;
     }
+
     button {
-      background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px;
+      background-color: #4CAF50; color: white;
+      padding: 10px 20px; border: none; border-radius: 4px;
       cursor: pointer;
     }
-    button:hover { background-color: #45a049; }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
     table {
       border-collapse: collapse;
       width: 100%;
       margin: 20px 0;
-      border: 2px solid #000; /* visible solid border around table */
-      margin-left: auto;
-      margin-right: auto; /* center table */
+      border: 2px solid #000;
     }
+
     th, td {
-      border: 1px solid #000; /* visible solid border for cells */
+      border: 1px solid #000;
       padding: 8px;
       text-align: left;
     }
+
     th {
       background-color: #f2f2f2;
     }
+
     .promo-code {
-      font-family: monospace; background: #eee; padding: 4px 6px; border-radius: 4px;
+      font-family: monospace;
+      background: #eee;
+      padding: 4px 6px;
+      border-radius: 4px;
       cursor: pointer;
       user-select: all;
     }
+
     .copy-button {
-      margin-left: 8px; padding: 4px 8px; font-size: 0.9em; cursor: pointer;
-      border: 1px solid #888; border-radius: 4px; background: #f9f9f9;
+      margin-left: 8px;
+      padding: 4px 8px;
+      font-size: 0.9em;
+      cursor: pointer;
+      border: 1px solid #888;
+      border-radius: 4px;
+      background: #f9f9f9;
     }
+
     .copy-button:hover {
       background-color: #ddd;
     }
+
     #error {
-      color: red; margin-top: 10px;
+      color: red;
+      margin-top: 10px;
     }
+
     #welcome-msg {
       font-size: 1.2em;
       margin-bottom: 20px;
     }
+
     #loading {
       color: green;
       font-weight: bold;
       margin-top: 15px;
-      display: none; /* hidden initially */
+      display: none;
     }
+
     .withdraw-button {
       background-color: black;
       color: white;
@@ -68,50 +106,59 @@
       cursor: pointer;
       margin-bottom: 15px;
     }
+
     .withdraw-button:hover {
       background-color: #333;
+    }
+
+    @media (max-width: 600px) {
+      table, thead, tbody, th, td, tr {
+        font-size: 14px;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="welcome-msg" style="display:none;">
-    Welcome, <span id="username" style="color:red;"></span>!
-  </div>
+  <div class="container">
+    <div id="welcome-msg" style="display:none;">
+      Welcome, <span id="username" style="color:red;"></span>!
+    </div>
 
-  <h2 style="color: green;">EARNINGS DASHBOARD</h2>
+    <h2 style="color: green;">EARNINGS DASHBOARD</h2>
 
-  <div id="login-form">
-    <label for="nationalId">National ID:</label><br>
-    <input type="text" id="nationalId" placeholder="Enter National ID" required><br>
-    <label for="password">Password:</label><br>
-    <input type="password" id="password" placeholder="Enter Password" required><br>
-    <button onclick="login()">Login</button>
-    <div id="error"></div>
-    <div id="loading">Wait please...</div>
-  </div>
+    <div id="login-form">
+      <label for="nationalId">National ID:</label><br>
+      <input type="text" id="nationalId" placeholder="Enter National ID" required><br>
+      <label for="password">Password:</label><br>
+      <input type="password" id="password" placeholder="Enter Password" required><br>
+      <button onclick="login()">Login</button>
+      <div id="error"></div>
+      <div id="loading">Wait please...</div>
+    </div>
 
-  <div id="dashboard" style="display:none;">
-    <h3>YOUR EARNINGS</h3>
-    <p style="color: green; font-weight: bold; margin-top: 5px;">
-      NB: You can withdraw your earnings if they are KSH.100 and above.
-    </p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Credits</th>
-          <th>Phone Number</th>
-          <th>Promo Code</th>
-          <th>Earnings (KSH)</th>
-        </tr>
-      </thead>
-      <tbody id="user-data">
-      </tbody>
-    </table>
-    <a href="https://masomodigital.github.io/withdraw-earning/">
-      <button class="withdraw-button">Withdraw</button>
-    </a>
-    <button onclick="logout()">Logout</button>
+    <div id="dashboard" style="display:none;">
+      <h3>YOUR EARNINGS</h3>
+      <p style="color: green; font-weight: bold; margin-top: 5px;">
+        NB: You can withdraw your earnings if they are KSH.100 and above.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Credits</th>
+            <th>Phone Number</th>
+            <th>Promo Code</th>
+            <th>Earnings (KSH)</th>
+          </tr>
+        </thead>
+        <tbody id="user-data">
+        </tbody>
+      </table>
+      <a href="https://masomodigital.github.io/withdraw-earning/">
+        <button class="withdraw-button">Withdraw</button>
+      </a>
+      <button onclick="logout()">Logout</button>
+    </div>
   </div>
 
   <script>
@@ -123,7 +170,7 @@
       const errorDiv = document.getElementById('error');
       const loadingDiv = document.getElementById('loading');
       errorDiv.textContent = '';
-      loadingDiv.style.display = 'block';  // show "Wait please..."
+      loadingDiv.style.display = 'block';
 
       if (!nationalId || !password) {
         errorDiv.textContent = 'Please enter both National ID and Password.';
@@ -134,7 +181,7 @@
       fetch(scriptURL + `?nationalId=${encodeURIComponent(nationalId)}&password=${encodeURIComponent(password)}`)
         .then(res => res.json())
         .then(response => {
-          loadingDiv.style.display = 'none';  // hide "Wait please..."
+          loadingDiv.style.display = 'none';
 
           if (response.success) {
             document.getElementById('login-form').style.display = 'none';
@@ -143,7 +190,7 @@
             document.getElementById('dashboard').style.display = 'block';
 
             const tbody = document.getElementById('user-data');
-            tbody.innerHTML = ''; // Clear previous
+            tbody.innerHTML = '';
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -163,7 +210,7 @@
           }
         })
         .catch(error => {
-          document.getElementById('loading').style.display = 'none'; // hide "Wait please..."
+          loadingDiv.style.display = 'none';
           errorDiv.textContent = 'Error connecting to server.';
           console.error(error);
         });
