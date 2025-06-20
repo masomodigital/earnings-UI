@@ -3,41 +3,92 @@
 <head>
   <meta charset="UTF-8">
   <title>Earnings Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
+      min-height: 100%;
       font-family: Arial, sans-serif;
+      background: #f0f2f5;
       display: flex;
       justify-content: center;
       align-items: center;
-      text-align: center;
-      background-color: #f9f9f9;
     }
 
     .container {
-      max-width: 600px;
-      width: 90%;
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #2c3e50;
+      font-size: 1.5em;
+      margin-bottom: 20px;
+    }
+
+    label {
+      text-align: left;
+      display: block;
+      font-weight: 500;
+      margin: 8px 0 4px;
     }
 
     input[type=text], input[type=password] {
-      width: 100%; padding: 10px; margin: 6px 0 12px 0;
-      border: 1px solid #ccc; border-radius: 4px;
+      width: 100%;
+      padding: 12px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+      transition: border-color 0.3s;
+    }
+
+    input[type=text]:focus, input[type=password]:focus {
+      border-color: #3498db;
+      outline: none;
     }
 
     button {
-      background-color: #4CAF50; color: white;
-      padding: 10px 20px; border: none; border-radius: 4px;
+      background: #3498db;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 1em;
       cursor: pointer;
+      margin-top: 15px;
+      transition: background 0.3s;
     }
 
     button:hover {
-      background-color: #45a049;
+      background: #2980b9;
+    }
+
+    #error {
+      color: red;
+      margin-top: 10px;
+      font-size: 0.9em;
+    }
+
+    #loading {
+      color: green;
+      font-weight: bold;
+      margin-top: 10px;
+      display: none;
+    }
+
+    #welcome-msg {
+      font-size: 1.2em;
+      margin-bottom: 20px;
     }
 
     table {
@@ -80,23 +131,6 @@
       background-color: #ddd;
     }
 
-    #error {
-      color: red;
-      margin-top: 10px;
-    }
-
-    #welcome-msg {
-      font-size: 1.2em;
-      margin-bottom: 20px;
-    }
-
-    #loading {
-      color: green;
-      font-weight: bold;
-      margin-top: 15px;
-      display: none;
-    }
-
     .withdraw-button {
       background-color: black;
       color: white;
@@ -111,7 +145,29 @@
       background-color: #333;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 480px) {
+      .container {
+        padding: 20px;
+        border-radius: 10px;
+      }
+
+      h2 {
+        font-size: 1.3em;
+      }
+
+      label {
+        font-size: 0.9em;
+      }
+
+      input[type=text], input[type=password] {
+        padding: 10px;
+        font-size: 0.95em;
+      }
+
+      button {
+        padding: 10px;
+      }
+
       table, thead, tbody, th, td, tr {
         font-size: 14px;
       }
@@ -127,10 +183,10 @@
     <h2 style="color: green;">EARNINGS DASHBOARD</h2>
 
     <div id="login-form">
-      <label for="nationalId">National ID:</label><br>
-      <input type="text" id="nationalId" placeholder="Enter National ID" required><br>
-      <label for="password">Password:</label><br>
-      <input type="password" id="password" placeholder="Enter Password" required><br>
+      <label for="nationalId">National ID:</label>
+      <input type="text" id="nationalId" placeholder="Enter National ID" required>
+      <label for="password">Password:</label>
+      <input type="password" id="password" placeholder="Enter Password" required>
       <button onclick="login()">Login</button>
       <div id="error"></div>
       <div id="loading">Wait please...</div>
@@ -151,8 +207,7 @@
             <th>Earnings (KSH)</th>
           </tr>
         </thead>
-        <tbody id="user-data">
-        </tbody>
+        <tbody id="user-data"></tbody>
       </table>
       <a href="https://masomodigital.github.io/withdraw-earning/">
         <button class="withdraw-button">Withdraw</button>
@@ -182,7 +237,6 @@
         .then(res => res.json())
         .then(response => {
           loadingDiv.style.display = 'none';
-
           if (response.success) {
             document.getElementById('login-form').style.display = 'none';
             document.getElementById('welcome-msg').style.display = 'block';
@@ -191,7 +245,6 @@
 
             const tbody = document.getElementById('user-data');
             tbody.innerHTML = '';
-
             const tr = document.createElement('tr');
             tr.innerHTML = `
               <td>${response.name}</td>
@@ -204,7 +257,6 @@
               <td style="color: red;">${Number(response.earnings).toFixed(2)}</td>
             `;
             tbody.appendChild(tr);
-
           } else {
             errorDiv.textContent = response.message || 'Login failed.';
           }
